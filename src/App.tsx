@@ -269,7 +269,131 @@ function CreatePlanModal({
   );
 }
 
+// ─── Sortable Task Item ───────────────────────────────────────────────────────
+
+function SortableTaskItem({
+  step,
+  idx,
+  isEditing,
+  editText,
+  editInputRef,
+  onToggle,
+  onStartEdit,
+  onSaveEdit,
+  onCancelEdit,
+  onEditTextChange,
+}: {
+  step: Step;
+  idx: number;
+  isEditing: boolean;
+  editText: string;
+  editInputRef: React.RefObject<HTMLInputElement>;
+  onToggle: () => void;
+  onStartEdit: () => void;
+  onSaveEdit: () => void;
+  onCancelEdit: () => void;
+  onEditTextChange: (text: string) => void;
+}) {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: step.id });
+
+  const style: React.CSSProperties = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    zIndex: isDragging ? 10 : undefined,
+    opacity: isDragging ? 0.5 : 1,
+  };
+
+  return (
+    <div
+      ref={setNodeRef}
+      style={style}
+      className={`
+        flex items-start gap-3 rounded-2xl p-4 border transition-all duration-150
+        ${isEditing
+          ? "bg-card border-primary/50 shadow-[0_0_0_2px_hsl(20_100%_60%/0.15)]"
+          : step.completed
+            ? "bg-secondary/60 border-border/50 opacity-70"
+            : "bg-card border-border"
+        }
+        ${isDragging ? "shadow-lg ring-1 ring-primary/20" : ""}
+      `}
+    >
+      {/* Drag handle */}
+      <button
+        {...attributes}
+        {...listeners}
+        className="mt-0.5 shrink-0 cursor-grab active:cursor-grabbing text-muted-foreground/25 hover:text-muted-foreground/60 transition-colors touch-none"
+        aria-label="Drag to reorder"
+        tabIndex={-1}
+      >
+        <GripVertical size={15} />
+      </button>
+
+      {/* Checkbox icon — tapping toggles completion */}
+      <button
+        onClick={onToggle}
+        className="mt-0.5 shrink-0 transition-transform active:scale-90"
+        aria-label={step.completed ? "Mark incomplete" : "Mark complete"}
+      >
+        {step.completed ? (
+          <CheckCircle2 size={18} className="text-primary" />
+        ) : (
+          <Circle size={18} className="text-muted-foreground/50" />
+        )}
+      </button>
+
+      {/* Text / Edit input */}
+      <div className="flex-1 min-w-0">
+        {isEditing ? (
+          <input
+            ref={editInputRef}
+            value={editText}
+            onChange={(e) => onEditTextChange(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") { e.preventDefault(); onSaveEdit(); }
+              if (e.key === "Escape") { e.stopPropagation(); onCancelEdit(); }
+            }}
+            onBlur={onSaveEdit}
+            className="w-full bg-transparent text-sm text-foreground outline-none border-none leading-snug caret-primary"
+          />
+        ) : (
+          <button
+            onClick={onToggle}
+            className="w-full text-left text-sm leading-snug"
+          >
+            <span className={step.completed ? "line-through text-muted-foreground" : "text-foreground"}>
+              {step.text}
+            </span>
+          </button>
+        )}
+      </div>
+
+      {/* Edit icon / task number */}
+      <div className="shrink-0 flex items-center gap-2 mt-0.5">
+        {!isEditing && (
+          <button
+            onClick={(e) => { e.stopPropagation(); onStartEdit(); }}
+            className="text-muted-foreground/30 hover:text-primary transition-colors p-0.5 rounded"
+            aria-label="Edit task"
+          >
+            <Pencil size={13} />
+          </button>
+        )}
+        <span className="text-xs text-muted-foreground/30">#{idx + 1}</span>
+      </div>
+    </div>
+  );
+}
+
 // ─── Plan View ────────────────────────────────────────────────────────────────
+
 
 function PlanView({
   plan,
