@@ -548,9 +548,10 @@ function PlanView({
               Add Task
             </button>
           )}
-        </div>
+
       </div>
-    </div>
+      </div>
+
   {showDelete && (
   <div className="fixed inset-0 flex items-center justify-center bg-black/50 z-50">
     <div className="bg-card border border-border rounded-2xl p-6 w-[90%] max-w-sm">
@@ -583,8 +584,6 @@ function PlanView({
     </div>
   </div>
 )}
-  );
-}
 
 // ─── Dashboard ────────────────────────────────────────────────────────────────
 
