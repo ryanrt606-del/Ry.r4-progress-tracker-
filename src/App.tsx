@@ -354,6 +354,7 @@ function PlanView({
   const [editText, setEditText] = useState("");
   const [addingTask, setAddingTask] = useState(false);
   const [newTaskText, setNewTaskText] = useState("");
+  const [showDelete, setShowDelete] = useState(false);
   const addInputRef = useRef<HTMLInputElement>(null);
   const editInputRef = useRef<HTMLInputElement>(null);
 
@@ -411,9 +412,7 @@ function PlanView({
   }
 
   function handleDelete() {
-    if (confirm(`Delete "${plan.title}"? This cannot be undone.`)) {
-      onDelete(plan.id);
-    }
+  setShowDelete(true);
   }
 
   return (
@@ -552,6 +551,38 @@ function PlanView({
         </div>
       </div>
     </div>
+  {showDelete && (
+  <div className="fixed inset-0 flex items-center justify-center bg-black/50 z-50">
+    <div className="bg-card border border-border rounded-2xl p-6 w-[90%] max-w-sm">
+      <h3 className="text-lg font-semibold mb-2">
+        Delete Plan
+      </h3>
+
+      <p className="text-sm text-muted-foreground mb-5">
+        Are you sure you want to delete "{plan.title}"?
+      </p>
+
+      <div className="flex gap-3">
+        <button
+          onClick={() => setShowDelete(false)}
+          className="flex-1 border rounded-xl py-2"
+        >
+          Cancel
+        </button>
+
+        <button
+          onClick={() => {
+            onDelete(plan.id);
+            setShowDelete(false);
+          }}
+          className="flex-1 bg-red-500 text-white rounded-xl py-2"
+        >
+          Delete
+        </button>
+      </div>
+    </div>
+  </div>
+)}
   );
 }
 
@@ -566,7 +597,7 @@ function Dashboard({
   onSelectPlan: (plan: Plan) => void;
   onNewPlan: () => void;
 }) {
-  const totalTasks = plans.reduce((acc, p) => acc + p.steps.length, 0);
+   const totalTasks = plans.reduce((acc, p) => acc + p.steps.length, 0);
   const completedTasks = plans.reduce(
     (acc, p) => acc + p.steps.filter((s) => s.completed).length,
     0
