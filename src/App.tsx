@@ -253,9 +253,9 @@ function CreatePlanModal({
   );
 }
 
-// ─── Sortable Task Item ───────────────────────────────────────────────────────
+// ─── Task Item ────────────────────────────────────────────────────────────────
 
-function SortableTaskItem({
+function TaskItem({
   step,
   idx,
   isEditing,
@@ -278,26 +278,8 @@ function SortableTaskItem({
   onCancelEdit: () => void;
   onEditTextChange: (text: string) => void;
 }) {
-  const {
-    attributes,
-    listeners,
-    setNodeRef,
-    transform,
-    transition,
-    isDragging,
-  } = useSortable({ id: step.id });
-
-  const style: React.CSSProperties = {
-    transform: CSS.Transform.toString(transform),
-    transition,
-    zIndex: isDragging ? 10 : undefined,
-    opacity: isDragging ? 0.5 : 1,
-  };
-
   return (
     <div
-      ref={setNodeRef}
-      style={style}
       className={`
         flex items-start gap-3 rounded-2xl p-4 border transition-all duration-150
         ${isEditing
@@ -306,20 +288,8 @@ function SortableTaskItem({
             ? "bg-secondary/60 border-border/50 opacity-70"
             : "bg-card border-border"
         }
-        ${isDragging ? "shadow-lg ring-1 ring-primary/20" : ""}
       `}
     >
-      {/* Drag handle */}
-      <button
-        {...attributes}
-        {...listeners}
-        className="mt-0.5 shrink-0 cursor-grab active:cursor-grabbing text-muted-foreground/25 hover:text-muted-foreground/60 transition-colors touch-none"
-        aria-label="Drag to reorder"
-        tabIndex={-1}
-      >
-        <GripVertical size={15} />
-      </button>
-
       {/* Checkbox icon — tapping toggles completion */}
       <button
         onClick={onToggle}
