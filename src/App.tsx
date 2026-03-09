@@ -1,21 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { Rocket, Plus, ChevronLeft, CheckCircle2, Circle, Trash2, RotateCcw, X, Sparkles, Calendar, ListChecks, TrendingUp, Pencil, GripVertical } from "lucide-react";
-import {
-  DndContext,
-  closestCenter,
-  PointerSensor,
-  TouchSensor,
-  useSensor,
-  useSensors,
-  DragEndEvent,
-} from "@dnd-kit/core";
-import {
-  SortableContext,
-  useSortable,
-  verticalListSortingStrategy,
-  arrayMove,
-} from "@dnd-kit/sortable";
-import { CSS } from "@dnd-kit/utilities";
+import { Rocket, Plus, ChevronLeft, CheckCircle2, Circle, Trash2, RotateCcw, X, Sparkles, Calendar, ListChecks, TrendingUp, Pencil } from "lucide-react";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -47,7 +31,6 @@ function parsePlanText(text: string): Step[] {
   const steps: Step[] = [];
 
   for (const line of lines) {
-    // Remove leading list markers: 1. 2) - • * ─
     const cleaned = line
       .replace(/^(\d+[\.\)]|[-•\*─])\s+/, "")
       .trim();
@@ -269,9 +252,9 @@ function CreatePlanModal({
   );
 }
 
-// ─── Sortable Task Item ───────────────────────────────────────────────────────
+// ─── Task Item ────────────────────────────────────────────────────────────────
 
-function SortableTaskItem({
+function TaskItem({
   step,
   idx,
   isEditing,
@@ -294,26 +277,8 @@ function SortableTaskItem({
   onCancelEdit: () => void;
   onEditTextChange: (text: string) => void;
 }) {
-  const {
-    attributes,
-    listeners,
-    setNodeRef,
-    transform,
-    transition,
-    isDragging,
-  } = useSortable({ id: step.id });
-
-  const style: React.CSSProperties = {
-    transform: CSS.Transform.toString(transform),
-    transition,
-    zIndex: isDragging ? 10 : undefined,
-    opacity: isDragging ? 0.5 : 1,
-  };
-
   return (
     <div
-      ref={setNodeRef}
-      style={style}
       className={`
         flex items-start gap-3 rounded-2xl p-4 border transition-all duration-150
         ${isEditing
@@ -322,20 +287,8 @@ function SortableTaskItem({
             ? "bg-secondary/60 border-border/50 opacity-70"
             : "bg-card border-border"
         }
-        ${isDragging ? "shadow-lg ring-1 ring-primary/20" : ""}
       `}
     >
-      {/* Drag handle */}
-      <button
-        {...attributes}
-        {...listeners}
-        className="mt-0.5 shrink-0 cursor-grab active:cursor-grabbing text-muted-foreground/25 hover:text-muted-foreground/60 transition-colors touch-none"
-        aria-label="Drag to reorder"
-        tabIndex={-1}
-      >
-        <GripVertical size={15} />
-      </button>
-
       {/* Checkbox icon — tapping toggles completion */}
       <button
         onClick={onToggle}
@@ -394,7 +347,6 @@ function SortableTaskItem({
 
 // ─── Plan View ────────────────────────────────────────────────────────────────
 
-
 function PlanView({
   plan,
   onBack,
@@ -415,11 +367,6 @@ function PlanView({
   const addInputRef = useRef<HTMLInputElement>(null);
   const editInputRef = useRef<HTMLInputElement>(null);
 
-  const sensors = useSensors(
-    useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
-    useSensor(TouchSensor, { activationConstraint: { delay: 150, tolerance: 5 } })
-  );
-
   useEffect(() => {
     if (editingId) editInputRef.current?.focus();
   }, [editingId]);
@@ -427,14 +374,6 @@ function PlanView({
   useEffect(() => {
     if (addingTask) addInputRef.current?.focus();
   }, [addingTask]);
-
-  function handleDragEnd(event: DragEndEvent) {
-    const { active, over } = event;
-    if (!over || active.id === over.id) return;
-    const oldIndex = plan.steps.findIndex((s) => s.id === active.id);
-    const newIndex = plan.steps.findIndex((s) => s.id === over.id);
-    onUpdate({ ...plan, steps: arrayMove(plan.steps, oldIndex, newIndex) });
-  }
 
   function handleAddTask() {
     const trimmed = newTaskText.trim();
@@ -569,27 +508,23 @@ function PlanView({
             Tasks ({plan.steps.length})
           </h2>
 
-          <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
-            <SortableContext items={plan.steps.map((s) => s.id)} strategy={verticalListSortingStrategy}>
-              <div className="space-y-2">
-                {plan.steps.map((step, idx) => (
-                  <SortableTaskItem
-                    key={step.id}
-                    step={step}
-                    idx={idx}
-                    isEditing={editingId === step.id}
-                    editText={editText}
-                    editInputRef={editInputRef}
-                    onToggle={() => { if (editingId !== step.id) toggleStep(step.id); }}
-                    onStartEdit={() => startEdit(step)}
-                    onSaveEdit={() => saveEdit(step.id)}
-                    onCancelEdit={cancelEdit}
-                    onEditTextChange={setEditText}
-                  />
-                ))}
-              </div>
-            </SortableContext>
-          </DndContext>
+          <div className="space-y-2">
+            {plan.steps.map((step, idx) => (
+              <TaskItem
+                key={step.id}
+                step={step}
+                idx={idx}
+                isEditing={editingId === step.id}
+                editText={editText}
+                editInputRef={editInputRef}
+                onToggle={() => { if (editingId !== step.id) toggleStep(step.id); }}
+                onStartEdit={() => startEdit(step)}
+                onSaveEdit={() => saveEdit(step.id)}
+                onCancelEdit={cancelEdit}
+                onEditTextChange={setEditText}
+              />
+            ))}
+          </div>
 
           {plan.steps.length === 0 && !addingTask && (
             <div className="text-center py-10 text-muted-foreground text-sm">
@@ -739,7 +674,6 @@ export default function App() {
   const [activePlanId, setActivePlanId] = useState<string | null>(null);
   const [showCreate, setShowCreate] = useState(false);
 
-  // Sync to localStorage
   useEffect(() => {
     savePlans(plans);
   }, [plans]);
