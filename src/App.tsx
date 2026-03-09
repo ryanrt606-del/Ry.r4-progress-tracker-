@@ -604,7 +604,6 @@ function PlanView({
   const activePlans = plans.filter((p) => getCompletion(p) < 100).length;
 
   return (
-  <>
     <div className="min-h-screen bg-background">
       <div className="max-w-xl mx-auto px-4 py-6">
         {/* Header */}
@@ -685,7 +684,6 @@ function PlanView({
         )}
       </div>
     </div>
-    </>
   );
 
 
