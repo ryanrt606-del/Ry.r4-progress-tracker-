@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { Rocket, Plus, ChevronLeft, CheckCircle2, Circle, Trash2, RotateCcw, X, Sparkles, Calendar, ListChecks, TrendingUp } from "lucide-react";
+import { Rocket, Plus, ChevronLeft, CheckCircle2, Circle, Trash2, RotateCcw, X, Sparkles, Calendar, ListChecks, TrendingUp, Pencil } from "lucide-react";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
