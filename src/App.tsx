@@ -1,3 +1,4 @@
+import { getPlans, savePlan, deletePlan } from "./db"
 import { useState, useEffect, useRef } from "react";
 import { Rocket, Plus, ChevronLeft, CheckCircle2, Circle, Trash2, RotateCcw, X, Sparkles, Calendar, ListChecks, TrendingUp, Pencil } from "lucide-react";
 
@@ -54,19 +55,8 @@ function formatDate(iso: string) {
     day: "numeric",
     year: "numeric",
   });
-}
+} 
 
-function loadPlans(): Plan[] {
-  try {
-    return JSON.parse(localStorage.getItem("progress-tracker-plans") || "[]");
-  } catch {
-    return [];
-  }
-}
-
-function savePlans(plans: Plan[]) {
-  localStorage.setItem("progress-tracker-plans", JSON.stringify(plans));
-}
 
 // ─── Sub-components ──────────────────────────────────────────────────────────
 
@@ -670,13 +660,26 @@ function Dashboard({
 // ─── App Root ─────────────────────────────────────────────────────────────────
 
 export default function App() {
-  const [plans, setPlans] = useState<Plan[]>(loadPlans);
+  const [plans, setPlans] = useState<Plan[]>([]);
   const [activePlanId, setActivePlanId] = useState<string | null>(null);
   const [showCreate, setShowCreate] = useState(false);
-
+ 
   useEffect(() => {
-    savePlans(plans);
-  }, [plans]);
+  async function loadPlansFromDB() {
+    const saved = await getPlans();
+    if (saved) {
+      setPlans(saved as Plan[]);
+    }
+  }
+
+  loadPlansFromDB();
+}, []);
+
+useEffect(() => {
+  plans.forEach((p) => {
+    savePlan(p);
+  });
+}, [plans]);
 
   const activePlan = plans.find((p) => p.id === activePlanId) ?? null;
 
