@@ -378,24 +378,55 @@ function PlanView({
   }, [addingTask]);
 
   function handleAddTask() {
-...
-          <div className="space-y-2">
-            {plan.steps.map((step, idx) => (
-              <TaskItem
-                key={step.id}
-                step={step}
-                idx={idx}
-                isEditing={editingId === step.id}
-                editText={editText}
-                editInputRef={editInputRef}
-                onToggle={() => { if (editingId !== step.id) toggleStep(step.id); }}
-                onStartEdit={() => startEdit(step)}
-                onSaveEdit={() => saveEdit(step.id)}
-                onCancelEdit={cancelEdit}
-                onEditTextChange={setEditText}
-              />
-            ))}
-          </div>
+    const trimmed = newTaskText.trim();
+    if (trimmed) {
+      onUpdate({
+        ...plan,
+        steps: [...plan.steps, { id: generateId(), text: trimmed, completed: false }],
+      });
+    }
+    setNewTaskText("");
+    setAddingTask(false);
+  }
+
+  function toggleStep(id: string) {
+    onUpdate({
+      ...plan,
+      steps: plan.steps.map((s) =>
+        s.id === id ? { ...s, completed: !s.completed } : s
+      ),
+    });
+  }
+
+  function startEdit(step: Step) {
+    setEditingId(step.id);
+    setEditText(step.text);
+  }
+
+  function saveEdit(id: string) {
+    const trimmed = editText.trim();
+    if (trimmed) {
+      onUpdate({
+        ...plan,
+        steps: plan.steps.map((s) => s.id === id ? { ...s, text: trimmed } : s),
+      });
+    }
+    setEditingId(null);
+  }
+
+  function cancelEdit() {
+    setEditingId(null);
+  }
+
+  function handleReset() {
+    onUpdate({ ...plan, steps: plan.steps.map((s) => ({ ...s, completed: false })) });
+  }
+
+  function handleDelete() {
+    if (confirm(`Delete "${plan.title}"? This cannot be undone.`)) {
+      onDelete(plan.id);
+    }
+  }
 
           {plan.steps.length === 0 && !addingTask && (
             <div className="text-center py-10 text-muted-foreground text-sm">
