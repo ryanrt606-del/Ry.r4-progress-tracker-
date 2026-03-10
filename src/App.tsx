@@ -575,7 +575,7 @@ function PlanView({
           onClick={() => {
             onDelete(plan.id);
             setShowDelete(false);
-          }}
+          )}
           className="flex-1 bg-red-500 text-white rounded-xl py-2"
         >
           Delete
