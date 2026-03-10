@@ -582,11 +582,10 @@ function PlanView({
         </button>
       </div>
     </div>
-);
 
 // ─── Dashboard ────────────────────────────────────────────────────────────────
  
- function Dashboard({
+function Dashboard({
   plans,
   onSelectPlan,
   onNewPlan,
