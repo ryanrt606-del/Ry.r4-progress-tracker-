@@ -585,16 +585,16 @@ function PlanView({
   )}   
 
 // ─── Dashboard ────────────────────────────────────────────────────────────────
- 
-function Dashboard({
-  plans,
-  onSelectPlan,
-  onNewPlan,
-}: {
-  plans: Plan[];
-  onSelectPlan: (plan: Plan) => void;
-  onNewPlan: () => void;
-}) {
+    
+   function Dashboard({
+    plans,
+    onSelectPlan,
+    onNewPlan,
+  }: {
+    plans: Plan[];
+    onSelectPlan: (plan: Plan) => void;
+    onNewPlan: () => void;
+  }) {
 
    const totalTasks = plans.reduce((acc, p) => acc + p.steps.length, 0);
   const completedTasks = plans.reduce(
