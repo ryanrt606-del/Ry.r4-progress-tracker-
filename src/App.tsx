@@ -589,7 +589,7 @@ function Dashboard({
   plans,
   onSelectPlan,
   onNewPlan,
-: {
+
   plans: Plan[];
   onSelectPlan: (plan: Plan) => void;
   onNewPlan: () => void;
